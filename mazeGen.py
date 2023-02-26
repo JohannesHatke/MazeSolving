@@ -1,6 +1,6 @@
 from random import randint 
-
-isEmpty = (lambda n: True if  n==None or n <= 0 else False)
+#TODO fix long backtracking queue
+isEmpty = (lambda n: True if  n==None or n > -10 else False)
 
 Step = 0
 
@@ -8,8 +8,10 @@ class mazeGenError(Exception):
     pass
 class mazeClass():
     def __init__(self,dimensiony,dimensionx, maze = None,StoreHistory = False):
-        self.maze = []
+        self.maze = [] #values below -9 are walls, if value is between -2 and -9 its not suitable for wall creation
         self.backTrack = []
+        self.createHistory = []
+        self.solveHistory = []
         if maze == None:
             self.genself(dimensiony,dimensionx)
         elif len(maze) == dimensiony and len(maze[0]) == dimensionx:
@@ -17,8 +19,6 @@ class mazeClass():
 
         self.step = 0
         self.maze = self.maze
-        self.createHistory = []
-        self.solveHistory = []
         self.start = None
         self.stop = None
 
@@ -75,7 +75,7 @@ class mazeClass():
 
     def lower(self,pos,fac=1):
         y,x = pos
-        if self.maze[y][x] <= 0: self.maze[y][x] += (-1)*(fac)
+        if self.maze[y][x] > -10: self.maze[y][x] += (-1)*(fac)
 
     def accessible(self,a):
         if a == None: return False
@@ -83,7 +83,12 @@ class mazeClass():
         if not self.inBounds(a): return False
 
         (y,x) = a
-        return (self.maze[y][x] == 0 or self.maze[y][x] == -1)
+        return (self.maze[y][x] > -2)
+    def createWallAndLog(self, pos):
+        y,x = pos
+        self.maze[y][x] = -10
+        self.createHistory.append([pos])
+
     def getVal(self,pos):
         return self.maze[pos[0]][pos[1]]
 
@@ -93,10 +98,11 @@ class mazeClass():
         if not self.accessible(curr):
             return
 
-        self.maze[cy][cx] = 5
+        self.createWallAndLog(curr)
+            #self.maze[cy][cx] = -10
         diagonalN, directN = self.getNeighbourValues(curr)
         for el in directN:
-            if self.getVal(el) > 0: old = el
+            if self.getVal(el) < -9: old = el
             else: self.lower(el)
 
         next = None
@@ -120,17 +126,25 @@ class mazeClass():
         # backtracking
         for element in directN:
             self.backTrack.append(element)
-                
+               
+    def getWallPositions(self):
+        #return list of positions where walls are
+        output = []
+        for y in range(len(self.maze)):
+            for x in range(len(self.maze[y])):
+                if self.maze[y][x] < -9 : output.append((y,x))
+
+        return output
 
     def genself(self,height,width,debug = False):
         self.maze = [[0 for i in range(width)] for j in range(height)]
         #gen Border:
         for j in range(len(self.maze[0])):
-            self.maze[0][j] = 1
-            self.maze[-1][j] = 1
+            self.maze[0][j] = -10
+            self.maze[-1][j] = -10
         for i in range(len(self.maze)):
-            self.maze[i][0] = 1
-            self.maze[i][-1] = 1
+            self.maze[i][0] = -10
+            self.maze[i][-1] = -10
 
         startx = randint(1,width-2)
         stopx = randint(1,width-2)
@@ -140,18 +154,24 @@ class mazeClass():
 
         #init gen starting points:
         genStart = []
+        self.createHistory = [[]]
         for j in range(2,len(self.maze)-2):
             genStart.append((j,0))
+            self.createHistory[0].append((j,0))
             genStart.append((j,len(self.maze)-1))
+            self.createHistory[0].append((j,len(self.maze)-1))
             
         for j in range(2,len(self.maze[0])-2):
-            if j != startx: genStart.append((0,j))
-            if j != stopx: genStart.append((len(self.maze)-1,j))
+            if j != startx: 
+                genStart.append((0,j))
+                self.createHistory[0].append((j,0))
+            if j != stopx:
+                genStart.append((len(self.maze)-1,j))
+                self.createHistory[0].append((len(self.maze)-1,j))
 
         for y in range(len(self.maze)):
             for x in range(len(self.maze[y])):
                 if self.neighbourIsBorder(y,x): self.maze[y][x] = -1
-
 
         #making corners and start/stoppoints inaccessible
         self.maze[1][1] = -2
@@ -162,6 +182,7 @@ class mazeClass():
         self.maze[1][startx] = -2
         self.maze[-1][stopx] = -2
         self.maze[-2][stopx] = -2
+
 
 
         startFromBorderAmount = ((height + width) * 2) // 5
@@ -183,10 +204,10 @@ class mazeClass():
         
 
     def mazeToString(self,debug = False):
-        conv = (lambda x:"##" if x > 0 else "  ")
+        conv = (lambda x:"##" if x < -9 else "  ")
         output = ""
         if debug:
-            conv = (lambda x:"VV" if x == None else ( "##" if x > 0 else ("  " if x == 0 else ("()" if x == -1 else "[]"))))
+            conv = (lambda x:"VV" if x == None else ( "##" if x < -9 else ("  " if x == 0 else ("()" if x == -1 else "[]"))))
             output += """
             0------------------------------0
             | v     |  displayed as:       |
@@ -213,3 +234,4 @@ if __name__ == "__main__":
     print(X)
     print("printing")
     print(X.mazeToString())
+    print(X.createHistory)

@@ -88,60 +88,43 @@ class mazeClass():
         return (self.maze[y][x] == 0 or self.maze[y][x] == -1)
 
     def genRecursively(self,curr,path = None,debug = False): #needs to be refactored
-        #breakpoint()
-        #print(f"gen\t {debug}")
-        debugOutput = ""
         cy,cx = curr
         old = (None,None)
         if not self.accessible(curr):
             return
 
         self.maze[cy][cx] = 5
-        if debug: 
-            global Step
-            debugOutput += (f"\nstep{Step}\n"+ self.mazeToString(debug))
-            Step += 1
         diagonalN, directN = self.getNeighbourValues(curr)
         for el in directN:
             if el[1] > 0: old = el[0]
             else: self.lower(el[0])
 
-        i = 1     #to replace while
-        if i == 1: #to replace while
-            i = 0 #to replace while
-            next = None
-            while not(self.accessible(next)) and len(directN) != 0:
-                next = (directN.pop(randint(0,len(directN)-1)))[0]
+        next = None
+        while not(self.accessible(next)) and len(directN) != 0:
+            next = (directN.pop(randint(0,len(directN)-1)))[0]
 
-            if not(self.accessible(next)):
-                for element in diagonalN:
-                    self.lower(element[0])
-                return
+        if not(self.accessible(next)):
+            for element in diagonalN:
+                self.lower(element[0])
+            return
 
-            oldy,oldx = old
-            curry,currx = curr
-            nexty,nextx = next
-            #if oldy == curry == nexty or oldx == currx == nextx : #straight
-            if not (oldy == nexty or oldx == nextx) : #not straight, need to gen edge
-                self.createCorner(old,curr,next)
-                if debug:
-                    #debugOutput += f"\n-----creating border in next step------\nold : {old}\tcurr: {curr}\tnext:{next}\n\t\tedge:{border}"
-                    debugOutput += f"\n\n"
-                    print(debugOutput)
+        #checking if corner needs to be created
+        oldy,oldx = old
+        curry,currx = curr
+        nexty,nextx = next
+        if not (oldy == nexty or oldx == nextx): #not straight, need to gen edge
+            self.createCorner(old,curr,next)
 
-            self.genRecursively(next,debug = debug)
+        self.genRecursively(next,debug = debug)
 
-            # backtracking
-            self.genRecursively(curr,debug = debug)
-            diagonalN, directN = self.getNeighbourValues(curr)
-            #self.backTrack = []
-            for element in directN:
-                self.backTrack.append(element[0])
-                #self.genRecursively(element[0])
+        # backtracking
+        self.genRecursively(curr,debug = debug)
+        
+        for element in directN:
+            self.backTrack.append(element[0])
                 
 
     def genself(self,height,width,debug = False):
-        
         self.maze = [[0 for i in range(width)] for j in range(height)]
         #gen Border:
         for j in range(len(self.maze[0])):
@@ -151,16 +134,11 @@ class mazeClass():
             self.maze[i][0] = 1
             self.maze[i][-1] = 1
 
-        #pick starting point
         startx = randint(1,width-2)
         stopx = randint(1,width-2)
 
-        #dont delete yet
-        #"""
         startPoint = (0,startx)
         stopPoint = (len(self.maze)-1,startx)
-        #"""
-        print(self)
 
         #init gen starting points:
         genStart = []
@@ -228,9 +206,6 @@ class mazeClass():
         return output[:-1]
     def __repr__(self):
         return self.mazeToString(True)
-
-
-
 
 
 if __name__ == "__main__":

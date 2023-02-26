@@ -8,7 +8,6 @@ class mazeGenError(Exception):
     pass
 class mazeClass():
     def __init__(self,dimensiony,dimensionx, maze = None,StoreHistory = False):
-        #throw self.mazeGenerationException
         self.maze = []
         self.backTrack = []
         if maze == None:
@@ -20,6 +19,8 @@ class mazeClass():
         self.maze = self.maze
         self.createHistory = []
         self.solveHistory = []
+        self.start = None
+        self.stop = None
 
     def createCorner(self,old,curr,next):
         a = (curr[0] - old[0],curr[1] - old[1])  #set old and next in relation to current
@@ -65,16 +66,12 @@ class mazeClass():
      
     def getNeighbourValues(self,pos):
         y,x = pos
-        directH = [x for x in [(y+1,x),(y,x+1),(y-1,x),(y,x-1)]]
-        print(directH)
-        directH = list(filter(self.inBounds,directH))
-        print(directH)
         diagonalsH = [x for x in [(y+1,x+1),(y-1,x+1),(y-1,x-1),(y+1,x-1)]]
+        directH = [x for x in [(y+1,x),(y,x+1),(y-1,x),(y,x-1)]]
+        #removing inaccessible elements
+        directH = list(filter(self.inBounds,directH))
         diagonalsH = list(filter(self.inBounds,diagonalsH))
-        direct = [((a,b),self.maze[a][b]) for (a,b) in directH]
-        diagonals = [((a,b),self.maze[a][b]) for (a,b) in diagonalsH]
-
-        return diagonals,direct
+        return diagonalsH,directH
 
     def lower(self,pos,fac=1):
         y,x = pos
@@ -82,10 +79,13 @@ class mazeClass():
 
     def accessible(self,a):
         if a == None: return False
+        print(a)
         if not self.inBounds(a): return False
 
         (y,x) = a
         return (self.maze[y][x] == 0 or self.maze[y][x] == -1)
+    def getVal(self,pos):
+        return self.maze[pos[0]][pos[1]]
 
     def genRecursively(self,curr,path = None,debug = False): #needs to be refactored
         cy,cx = curr
@@ -96,16 +96,16 @@ class mazeClass():
         self.maze[cy][cx] = 5
         diagonalN, directN = self.getNeighbourValues(curr)
         for el in directN:
-            if el[1] > 0: old = el[0]
-            else: self.lower(el[0])
+            if self.getVal(el) > 0: old = el
+            else: self.lower(el)
 
         next = None
         while not(self.accessible(next)) and len(directN) != 0:
-            next = (directN.pop(randint(0,len(directN)-1)))[0]
+            next = (directN.pop(randint(0,len(directN)-1)))
 
         if not(self.accessible(next)):
             for element in diagonalN:
-                self.lower(element[0])
+                self.lower(element)
             return
 
         #checking if corner needs to be created
@@ -119,7 +119,7 @@ class mazeClass():
 
         # backtracking
         for element in directN:
-            self.backTrack.append(element[0])
+            self.backTrack.append(element)
                 
 
     def genself(self,height,width,debug = False):
@@ -135,8 +135,8 @@ class mazeClass():
         startx = randint(1,width-2)
         stopx = randint(1,width-2)
 
-        startPoint = (0,startx)
-        stopPoint = (len(self.maze)-1,startx)
+        self.start = (0,startx)
+        self.stop = (len(self.maze)-1,startx)
 
         #init gen starting points:
         genStart = []
@@ -153,11 +153,11 @@ class mazeClass():
                 if self.neighbourIsBorder(y,x): self.maze[y][x] = -1
 
 
+        #making corners and start/stoppoints inaccessible
         self.maze[1][1] = -2
         self.maze[-2][1] = -2
         self.maze[1][-2] = -2
         self.maze[-2][-2] = -2
-        
         self.maze[0][startx] = -2
         self.maze[1][startx] = -2
         self.maze[-1][stopx] = -2
@@ -171,8 +171,10 @@ class mazeClass():
             while not start and genStart:
                 start = genStart.pop(randint(0,len(genStart)-1))
                 start = self.getFreeNeighbours(start)
-            if start: self.genRecursively(start[0],debug=debug)
+            if start: 
+                self.genRecursively(start[0],debug=debug)
             i += 1
+
         print(f"\n\nstarting backtracking\nwith lenght of backtracking queue: {len(self.backTrack)}\n{self.backTrack}\n")
         while self.backTrack:
             x = self.backTrack.pop(0)

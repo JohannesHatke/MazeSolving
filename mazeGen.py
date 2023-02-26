@@ -20,8 +20,6 @@ class mazeClass():
         self.maze = self.maze
         self.createHistory = []
         self.solveHistory = []
-    def genmaze(self):
-        pass
 
     def createCorner(self,old,curr,next):
         a = (curr[0] - old[0],curr[1] - old[1])  #set old and next in relation to current
@@ -59,21 +57,24 @@ class mazeClass():
         if x < len(self.maze[y])-1 and (self.maze[y][x+1] ==0 or self.maze[y][x+1] == -1): ls.append((y,x+1))
         
         return ls
+    def inBounds(self,p):
+        a,b = p
+        print(p)
+        if len(self.maze) <= a or a < 0: return False
+        if len(self.maze[a]) <= b or b < 0: return False
+        print("TRUE")
+        return True
      
     def getNeighbourValues(self,pos):
-        def inBounds(p):
-            print(p)
-            a,b = p
-            if len(self.maze) >= a or a < 0: return False
-            if len(self.maze[a]) >= b or b < 0: return False
-            return True
 
 
         y,x = pos
         directH = [x for x in [(y+1,x),(y,x+1),(y-1,x),(y,x-1)]]
-        #directH = list(filter(inBounds,directH))
+        print(directH)
+        directH = list(filter(self.inBounds,directH))
+        print(directH)
         diagonalsH = [x for x in [(y+1,x+1),(y-1,x+1),(y-1,x-1),(y+1,x-1)]]
-        #directH = list(filter(inBounds,directH))
+        diagonalsH = list(filter(self.inBounds,diagonalsH))
         direct = [((a,b),self.maze[a][b]) for (a,b) in directH]
         diagonals = [((a,b),self.maze[a][b]) for (a,b) in diagonalsH]
 
@@ -108,7 +109,7 @@ class mazeClass():
             Step += 1
         diagonalN, directN = self.getNeighbourValues(curr)
         for el in directN:
-            if el[1] >0: old = el[0]
+            if el[1] > 0: old = el[0]
             else: self.lower(el[0])
 
         i = 1     #to replace while
@@ -119,11 +120,8 @@ class mazeClass():
                 next = (directN.pop(randint(0,len(directN)-1)))[0]
 
             if not(self.accessible(next)):
-                #print(f"new end at {curr}")
                 for element in diagonalN:
                     self.lower(element[0])
-                #print("final state:")
-                #print(self.mazeToString(True))
                 return
 
             oldy,oldx = old
@@ -182,14 +180,11 @@ class mazeClass():
         for j in range(2,len(self.maze[0])-2):
             if j != startx: genStart.append((0,j))
             if j != stopx: genStart.append((len(self.maze)-1,j))
-        """
-        for (y,x) in genStart:
-            self.maze[y][x] = 2
-        """
 
         for y in range(len(self.maze)):
             for x in range(len(self.maze[y])):
                 if self.neighbourIsBorder(y,x): self.maze[y][x] = -1
+
         self.maze[1][1] = -2
         self.maze[-2][1] = -2
         self.maze[1][-2] = -2
@@ -205,44 +200,16 @@ class mazeClass():
             if start: self.genRecursively(start[0],debug=debug)
             i += 1
         print(f"\n\nstarting backtracking\nwith lenght of backtracking queue: {len(self.backTrack)}\n{self.backTrack}\n")
-        """
-        while self.backTrack:
-            x = self.backTrack.pop(0)
-            print(x)
-            if x:
-                neighbours = self.getFreeNeighbours(x)
-                for start in neighbours:
-                    print(start)
-                    self.genRecursively(start)
-        """
         while self.backTrack:
             x = self.backTrack.pop(0)
             if x:
                 self.genRecursively(x)
-        #self.genRecursively((3,1),debug=debug)
-
-        freePoints = []
-        for i in range(len(self.maze)):
-            for j in range(len(self.maze[i])):
-                if self.maze[i][j] <= 0:
-                    self.maze[i][j] = 0
-                    freePoints.append((i,j))
-                else:
-                    self.maze[i][j] = 255
-
-        start = freePoints.pop(randint(0,len(freePoints)-1))
-        stop = freePoints.pop(randint(0,len(freePoints)-1))
         
 
     def mazeToString(self,debug = False):
-
+        conv = (lambda x:"##" if x > 0 else "  ")
         output = ""
-        #print(f"toString\t{self.maze}")
-        conv = (lambda x: "  " if isEmpty(x) else "##") 
-        #if debug: conv = (lambda x: "  " if isEmpty(x) else str(x) + " " ) 
         if debug:
-            #conv = (lambda x:". " if x == -1 else str(x)+" ")
-            #conv = (lambda x:" "+str(x) if x >= 0 else str(x))
             conv = (lambda x:"VV" if x == None else ( "##" if x > 0 else ("  " if x == 0 else ("()" if x == -1 else "[]"))))
             output += """
             0------------------------------0
@@ -271,3 +238,5 @@ class mazeClass():
 if __name__ == "__main__":
     X = mazeClass(31,31)
     print(X)
+    print("printing")
+    print(X.mazeToString())

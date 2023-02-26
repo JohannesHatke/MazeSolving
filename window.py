@@ -6,7 +6,9 @@ def createBatch(maze,mazeSquareCoordinates,pixelSize,mazeSquareHeight,startCol =
     mazeArr = [[0 for i in range(len(maze[0]))]for j in range(len(maze))]
     for i in range(len(mazeArr)):
         for j in range(len(mazeArr[i])):
-            mazeArr[i][j] = pyglet.shapes.Rectangle( x = mazeSquareCoordinates[1]+(j*pixelSize),  y = mazeSquareCoordinates[0]+mazeSquareHeight-((i+1)*pixelSize),width = pixelSize, height = pixelSize ,color = (77,77,startCol+j*1+i*1),batch = output)
+            mazeArr[i][j] = pyglet.shapes.Rectangle( x = mazeSquareCoordinates[1]+(j*pixelSize),  y = mazeSquareCoordinates[0]+mazeSquareHeight-((i+1)*pixelSize)
+                                                    ,width = pixelSize, height = pixelSize
+                                                    ,color = (77,77,startCol+j*1+i*1),batch = output)
     return output,mazeArr
 
 def createWindow(maze, height = None, width = None, pixelSize = 20,xBorder=100,yBorder = 100): #height and width refer to amount of squares in each maze
@@ -35,8 +37,12 @@ def createWindow(maze, height = None, width = None, pixelSize = 20,xBorder=100,y
     mazeSquareCoordinates = ((window.height // 2)- (mazeSquareHeight // 2),(window.width // 2 )- (mazeSquareWidth // 2))
     borderWidth = 10
 
-    backGroundSquare = pyglet.shapes.Rectangle( x = 0,  y = 0,width = window.width, height = window.height ,color = ( 255,255,255),batch = bgBatch)
-    mazeOutlineSquare = pyglet.shapes.Rectangle( x = ((window.width+borderWidth) // 2 )- ((mazeSquareWidth+borderWidth) // 2)-(borderWidth // 2),  y = (window.height // 2)- (mazeSquareHeight // 2)-(borderWidth // 2),width = mazeSquareWidth+borderWidth, height = mazeSquareHeight+borderWidth ,color = ( 1,1,1),batch = bgBatch)
+    backGroundSquare = pyglet.shapes.Rectangle( x = 0,  y = 0,width = window.width, height = window.height ,
+                                               color = ( 255,255,255),batch = bgBatch)
+    mazeOutlineSquare = pyglet.shapes.Rectangle( x = ((window.width+borderWidth) // 2 )- ((mazeSquareWidth+borderWidth) // 2)-(borderWidth // 2),
+                                                y = (window.height // 2)- (mazeSquareHeight // 2)-(borderWidth // 2)
+                                                ,width = mazeSquareWidth+borderWidth, height = mazeSquareHeight+borderWidth ,
+                                                color = ( 1,1,1),batch = bgBatch)
 
     mazeSquare = pyglet.shapes.Rectangle( x = mazeSquareCoordinates[1],y = mazeSquareCoordinates[0],
                                          width = mazeSquareWidth, height = mazeSquareHeight ,

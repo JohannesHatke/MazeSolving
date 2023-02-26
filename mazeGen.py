@@ -57,17 +57,13 @@ class mazeClass():
         if x < len(self.maze[y])-1 and (self.maze[y][x+1] ==0 or self.maze[y][x+1] == -1): ls.append((y,x+1))
         
         return ls
-    def inBounds(self,p):
+    def inBounds(self,p): #checks if position p= (y,x) is inside of maze
         a,b = p
-        print(p)
         if len(self.maze) <= a or a < 0: return False
         if len(self.maze[a]) <= b or b < 0: return False
-        print("TRUE")
         return True
      
     def getNeighbourValues(self,pos):
-
-
         y,x = pos
         directH = [x for x in [(y+1,x),(y,x+1),(y-1,x),(y,x-1)]]
         print(directH)
@@ -86,15 +82,13 @@ class mazeClass():
 
     def accessible(self,a):
         if a == None: return False
-        #print(f"a mit typ:\t{type(a)}")
-        #print(f"a mit inhalt:\t{a}")
+        if not self.inBounds(a): return False
+
         (y,x) = a
         return (self.maze[y][x] == 0 or self.maze[y][x] == -1)
-        #= (lambda a: True if self.maze[a[0]][a[1]] == 0 or self.maze[a[0]][a[1]] == -1 else False)
-
-
 
     def genRecursively(self,curr,path = None,debug = False): #needs to be refactored
+        #breakpoint()
         #print(f"gen\t {debug}")
         debugOutput = ""
         cy,cx = curr
@@ -114,7 +108,7 @@ class mazeClass():
 
         i = 1     #to replace while
         if i == 1: #to replace while
-            i = 0#to replace while
+            i = 0 #to replace while
             next = None
             while not(self.accessible(next)) and len(directN) != 0:
                 next = (directN.pop(randint(0,len(directN)-1)))[0]
@@ -162,14 +156,11 @@ class mazeClass():
         stopx = randint(1,width-2)
 
         #dont delete yet
-        """
-        self.maze[0][startx] = -2
-        self.maze[1][startx] = -2
-        self.maze[-1][stopx] = -2
-        self.maze[-2][stopx] = -2
+        #"""
         startPoint = (0,startx)
         stopPoint = (len(self.maze)-1,startx)
-        """
+        #"""
+        print(self)
 
         #init gen starting points:
         genStart = []
@@ -185,11 +176,18 @@ class mazeClass():
             for x in range(len(self.maze[y])):
                 if self.neighbourIsBorder(y,x): self.maze[y][x] = -1
 
+
         self.maze[1][1] = -2
         self.maze[-2][1] = -2
         self.maze[1][-2] = -2
         self.maze[-2][-2] = -2
         
+        self.maze[0][startx] = -2
+        self.maze[1][startx] = -2
+        self.maze[-1][stopx] = -2
+        self.maze[-2][stopx] = -2
+
+
         startFromBorderAmount = ((height + width) * 2) // 5
         i = 0
         while i < startFromBorderAmount and genStart:

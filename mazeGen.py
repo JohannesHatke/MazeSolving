@@ -118,8 +118,6 @@ class mazeClass():
         self.genRecursively(next,debug = debug)
 
         # backtracking
-        self.genRecursively(curr,debug = debug)
-        
         for element in directN:
             self.backTrack.append(element[0])
                 

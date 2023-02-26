@@ -1,7 +1,21 @@
 import pyglet
 import time
+import mazeGen
 
-def createBatch(maze,mazeSquareCoordinates,pixelSize,mazeSquareHeight,startCol = 1):
+
+def addToBatchFromLog(log,step,batch,topLeft,pixelSize):
+    outputSquares = []
+    if step >= len(log):
+        return []
+    for position in log[step]:
+        x = topLeft[1]+(position[1]*pixelSize)
+        y = topLeft[0]-((position[0]+1)*pixelSize)
+        outputSquares.append(pyglet.shapes.Rectangle( x = x,  y = y
+                                                    ,width = pixelSize, height = pixelSize
+                                                    ,color = (1,1,1),batch = batch))
+    return outputSquares
+
+def createBatchFromMaze(maze,mazeSquareCoordinates,pixelSize,mazeSquareHeight,startCol = 1):
     output = pyglet.graphics.Batch()
     mazeArr = [[0 for i in range(len(maze[0]))]for j in range(len(maze))]
     for i in range(len(mazeArr)):
@@ -11,14 +25,11 @@ def createBatch(maze,mazeSquareCoordinates,pixelSize,mazeSquareHeight,startCol =
                                                     ,color = (77,77,startCol+j*1+i*1),batch = output)
     return output,mazeArr
 
-def createWindow(maze, height = None, width = None, pixelSize = 20,xBorder=100,yBorder = 100): #height and width refer to amount of squares in each maze
-
-    # making sure paramers wont cause issues
+def createWindow(mazeObj,height = None, width = None, pixelSize = 20, xBorder=100,yBorder = 100):
+    maze = mazeObj.maze
     if pixelSize %2 != 0:
         pixelSize += 1
-    if type(maze) != type([]) or type(maze[0]) != type([]):
-        raise Exception
-    
+
     if height == None:
         numPixelsY = len(maze)
     else:
@@ -35,6 +46,7 @@ def createWindow(maze, height = None, width = None, pixelSize = 20,xBorder=100,y
 
     mazeBatch = pyglet.graphics.Batch()
     mazeSquareCoordinates = ((window.height // 2)- (mazeSquareHeight // 2),(window.width // 2 )- (mazeSquareWidth // 2))
+    mazeTopLeftCorner = (mazeSquareCoordinates[0] + mazeSquareHeight,mazeSquareCoordinates[1])
     borderWidth = 10
 
     backGroundSquare = pyglet.shapes.Rectangle( x = 0,  y = 0,width = window.width, height = window.height ,
@@ -47,17 +59,17 @@ def createWindow(maze, height = None, width = None, pixelSize = 20,xBorder=100,y
     mazeSquare = pyglet.shapes.Rectangle( x = mazeSquareCoordinates[1],y = mazeSquareCoordinates[0],
                                          width = mazeSquareWidth, height = mazeSquareHeight ,
                                          color = ( 255,255,255),batch = bgBatch)
-
-    counter = 1
-    mazeBatch,arr = createBatch(maze,mazeSquareCoordinates,pixelSize,mazeSquareHeight,counter)
-
+    counter =0
+    arr = []
     def update(dt):
         #dt: delta parameter necessary for schedule function
         nonlocal counter
         nonlocal mazeBatch
         nonlocal arr
+        log = mazeObj.createHistory
+        #log = [[(1,1)],[(2,2)],[(3,3)]]
         print(f"{counter} {time.time()}")
-        mazeBatch,arr = createBatch(maze,mazeSquareCoordinates,pixelSize,mazeSquareHeight,counter)
+        arr += addToBatchFromLog(log,counter,mazeBatch,mazeTopLeftCorner,pixelSize)
         counter += 1
 
     pyglet.clock.schedule_interval(update,0.1)
@@ -70,5 +82,8 @@ def createWindow(maze, height = None, width = None, pixelSize = 20,xBorder=100,y
 
     pyglet.app.run()
 
-maze = [[0 for i in range(60)] for j in range(40)]
+
+maze = mazeGen.mazeClass(31,31)
+print(maze)
+#createWindow(maze)
 createWindow(maze)

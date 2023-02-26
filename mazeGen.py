@@ -139,35 +139,42 @@ class mazeClass():
     def genself(self,height,width,debug = False):
         self.maze = [[0 for i in range(width)] for j in range(height)]
         #gen Border:
-        for j in range(len(self.maze[0])):
-            self.maze[0][j] = -10
-            self.maze[-1][j] = -10
-        for i in range(len(self.maze)):
-            self.maze[i][0] = -10
-            self.maze[i][-1] = -10
-
         startx = randint(1,width-2)
         stopx = randint(1,width-2)
+        self.createHistory = [[]]
+
+
+        for j in range(len(self.maze[0])):
+            if j != startx: 
+                self.createHistory[0].append((0,j))
+                self.maze[0][j] = -10
+                
+            if j != stopx: 
+                self.maze[-1][j] = -10
+                self.createHistory[0].append((len(self.maze)-1,j))
+
+        for i in range(len(self.maze)):
+            self.maze[i][0] = -10
+            self.createHistory[0].append((i,0))
+
+            self.maze[i][-1] = -10
+            self.createHistory[0].append((i,len(self.maze)-1))
+
 
         self.start = (0,startx)
         self.stop = (len(self.maze)-1,startx)
 
         #init gen starting points:
         genStart = []
-        self.createHistory = [[]]
         for j in range(2,len(self.maze)-2):
             genStart.append((j,0))
-            self.createHistory[0].append((j,0))
             genStart.append((j,len(self.maze)-1))
-            self.createHistory[0].append((j,len(self.maze)-1))
             
         for j in range(2,len(self.maze[0])-2):
             if j != startx: 
                 genStart.append((0,j))
-                self.createHistory[0].append((j,0))
             if j != stopx:
                 genStart.append((len(self.maze)-1,j))
-                self.createHistory[0].append((len(self.maze)-1,j))
 
         for y in range(len(self.maze)):
             for x in range(len(self.maze[y])):

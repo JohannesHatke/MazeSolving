@@ -72,7 +72,6 @@ class mazeClass():
 
     def accessible(self,a):
         if a == None: return False
-        print(a)
         if not self.inBounds(a): return False
 
         (y,x) = a
@@ -162,6 +161,10 @@ class mazeClass():
             self.maze[i][1] = -1
             self.maze[i][-2] = -1
 
+        self.maze[0][1] = -10
+        self.maze[-1][1] = -10
+        self.maze[0][-2] = -10
+        self.maze[-1][-2] = -10
 
 
         self.start = (0,startx)
@@ -205,7 +208,7 @@ class mazeClass():
                 self.genRecursively(start[0],debug=debug)
             i += 1
 
-        print(f"\n\nstarting backtracking\nwith lenght of backtracking queue: {len(self.backTrack)}\n{self.backTrack}\n")
+        print(f"\n\nstarting backtracking\nwith lenght of backtracking queue: {len(self.backTrack)}\n")
         while self.backTrack:
             x = self.backTrack.pop(-1)
             if x:

@@ -1,6 +1,6 @@
 from threading import currentThread
 import mazeGen
-# all solving algorithms should return list of searched of positions and then path
+# all solving algorithms should return list of searched positions in each step and then list of position that make up the final path
 # TODO increase performance 
 
 def getNextTrace(mazeObj: mazeGen.mazeClass,pos: tuple):
@@ -9,7 +9,6 @@ def getNextTrace(mazeObj: mazeGen.mazeClass,pos: tuple):
     currVal = mazeObj.getVal(pos)
     n = [(y,x+1),(y+1,x),(y,x-1),(y-1,x)]
     n = list(filter(mazeObj.inBounds,n))
-    ls = []
 
     minPos = None
     minVal = None
@@ -34,7 +33,7 @@ def traceBag(mazeObj: mazeGen.mazeClass) -> list:
         #breakpoint()
         curr = getNextTrace(mazeObj,curr)
         output.append(curr)
-        print(f"trying to unpack\t{curr}")
+        #print(f"trying to unpack\t{curr}")
         y,x = curr
         mazeObj.maze[y][x] += 3
 
@@ -89,7 +88,7 @@ def breadthFirstSearch(mazeObj):
 
 
 if __name__ == "__main__":
-    X = mazeGen.mazeClass(31,31)
+    X = mazeGen.mazeClass(91,91)
     print(X)
     print("\n\n\n")
-    print(breadthFirstSearch(X))
+    #print(breadthFirstSearch(X))

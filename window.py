@@ -33,7 +33,6 @@ def singleWindow(mazeObj: mazeGen.mazeClass,solvingAlgorithm,pixelSize,speed):
     numPixelsY = len(maze)
     numPixelsX = len(maze[0])
     solveLog,path = solvingAlgorithm(mazeObj)
-    print(f"\n\nsolveLog:\n{solveLog}")
 
 
     window = pyglet.window.Window((2*xBorder + numPixelsX * pixelSize),(2*yBorder + numPixelsY * pixelSize))
@@ -96,7 +95,6 @@ def singleWindow(mazeObj: mazeGen.mazeClass,solvingAlgorithm,pixelSize,speed):
         storageArr += output
         #if not didAnything: currPhase =( currPhase +1) % len(phases)
         #print(f"{counter}\t {time.time()}\t{phaseRunning}\t{currPhase}")
-        print(f"{time.time()}")
         phaseStep += 1
 
     pyglet.clock.schedule_interval(update,updateInterval)
@@ -140,7 +138,7 @@ def createBatchFromMaze(maze,mazeSquareCoordinates,pixelSize,mazeSquareHeight,st
     return output,mazeArr
 
 
-maze = mazeGen.mazeClass(31,31)
+maze = mazeGen.mazeClass(61,61)
 print(maze)
 #createWindow(maze)
 #createWindow(maze)

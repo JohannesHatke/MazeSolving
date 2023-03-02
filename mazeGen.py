@@ -92,7 +92,7 @@ class mazeClass():
             return
 
         self.createWallAndLog(curr)
-            #self.maze[cy][cx] = -10
+
         diagonalN, directN = self.getNeighbourValues(curr)
         for el in directN:
             if self.getVal(el) < -9: old = el
@@ -119,6 +119,7 @@ class mazeClass():
         # backtracking
         for element in directN:
             self.backTrack.append(element)
+            #self.backTrack = [element] + self.backTrack 
                
     def getWallPositions(self):
         #return list of positions where walls are
@@ -164,7 +165,7 @@ class mazeClass():
 
 
         self.start = (0,startx)
-        self.stop = (len(self.maze)-1,startx)
+        self.stop = (len(self.maze)-1,stopx)
 
         #init gen starting points:
         genStart = []
@@ -191,7 +192,9 @@ class mazeClass():
 
 
 
-        startFromBorderAmount = ((height + width) * 2) // 5
+        startFromBorderAmount = int(((height + width) * 2) // 32)
+        if startFromBorderAmount < 6: startFromBorderAmount = 6
+        #startFromBorderAmount = 5
         i = 0
         while i < startFromBorderAmount and genStart:
             start = None
@@ -204,7 +207,7 @@ class mazeClass():
 
         print(f"\n\nstarting backtracking\nwith lenght of backtracking queue: {len(self.backTrack)}\n{self.backTrack}\n")
         while self.backTrack:
-            x = self.backTrack.pop(0)
+            x = self.backTrack.pop(-1)
             if x:
                 self.genRecursively(x)
         
@@ -236,7 +239,7 @@ class mazeClass():
 
 
 if __name__ == "__main__":
-    X = mazeClass(31,31)
+    X = mazeClass(61,61)
     print(X)
     print("printing")
     print(X.mazeToString())
